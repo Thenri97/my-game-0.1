@@ -1,14 +1,24 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <title>2D Platformer Game</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <div id="mainMenu" class="menu">
+    <h1>Platformer Game</h1>
+    <button id="startButton">Start Game</button>
+  </div>
+
+  <div id="pauseMenu" class="menu">
+    <h1>Paused</h1>
+    <button id="resumeButton">Resume Game</button>
+    <button id="quitButton">Quit Game</button>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+  <script src="main.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
