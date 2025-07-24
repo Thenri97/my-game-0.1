@@ -33,6 +33,65 @@ const platforms = [
   { x: 600, y: canvas.height - 200, width: 150, height: 20, color: 'brown' }
 ];
 
+// Particle system
+const particles = [];
+const particleCount = 20;
+const particleSpeed = 5;
+const particleSize = 3;
+
+class Particle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = particleSize;
+    this.color = 'white'; // Particle color
+    this.alpha = 1; // Opacity
+    this.speedX = (Math.random() - 0.5) * particleSpeed;
+    this.speedY = (Math.random() - 0.5) * particleSpeed;
+    this.gravity = 0.1; // Apply a little gravity to particles
+    this.lifeSpan = Math.random() * 50 + 20; // How many frames the particle lives
+    this.history = []; // To store previous positions for trails
+  }
+
+  update() {
+    this.speedY += this.gravity;
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.lifeSpan--;
+    this.alpha -= 1 / (Math.random() * 50 + 20);
+
+    // Add current position to history and limit history size
+    this.history.push({ x: this.x, y: this.y });
+    if (this.history.length > 5) {
+      this.history.shift();
+    }
+  }
+
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+
+    // Draw particle trail
+    for (let i = 0; i < this.history.length; i++) {
+      const pos = this.history[i];
+      const size = this.size * (i / this.history.length);
+      ctx.fillRect(pos.x, pos.y, size, size);
+    }
+
+    // Draw current particle
+    ctx.fillRect(this.x, this.y, this.size, this.size);
+
+    ctx.restore();
+  }
+}
+
+function emitParticles() {
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle(player.x + player.width / 2, player.y + player.height));
+  }
+}
+
 function drawPlayer() {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -80,6 +139,18 @@ function update() {
     if (player.x + player.width > canvas.width) {
       player.x = canvas.width - player.width;
     }
+
+    // Update particles
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+    }
+    // Remove dead particles
+    for (let i = 0; i < particles.length; i++) {
+      if (particles[i].lifeSpan <= 0) {
+        particles.splice(i, 1);
+        i--;
+      }
+    }
   }
 }
 
@@ -88,6 +159,10 @@ function draw() {
   if (gameState === 'playing' || gameState === 'paused') {
     drawPlatforms();
     drawPlayer();
+    // Draw particles
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].draw();
+    }
   }
 }
 
@@ -135,6 +210,7 @@ document.addEventListener('keydown', (event) => {
     if (event.code === 'Space' && !player.isJumping) {
       player.dy = player.jumpStrength;
       player.isJumping = true;
+      emitParticles(); // Emit particles on jump
     }
     if (event.code === 'ArrowLeft') {
       player.dx = -player.speed;
